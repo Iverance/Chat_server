@@ -7,7 +7,8 @@
 var gravatar = require('gravatar');
 var db = require('./db');
 var sha1 = require('sha1');
-var session = require('express-session');
+
+
 
 // Export a function, so that we can pass 
 // the app and io instances from the app.js file:
@@ -98,6 +99,14 @@ module.exports = function(app,io){
 			db.login(toCheck,function(err,docs){
 				if(err || !docs) socket.emit('checkLogin', {login:false});
 				else {
+					/*db.getOldMsgs(3,function(err,docs){
+						if(err) throw err
+						else {
+							docs.forEach(function(data){
+								socket.broadcast.to(socket.room).emit('receive', {msg: data.msg, user: data.user, img: data.img});
+							});
+						}
+					});*/
 					socket.emit('checkLogin', {login:true});
 					socket.avatar = gravatar.url(data.avatar, {s: '140', r: 'x', d: 'mm'});
 					socket.emit('img', socket.avatar);
@@ -171,6 +180,9 @@ module.exports = function(app,io){
 		socket.on('msg', function(data){
 
 			// When the server receives a message, it sends it to the other person in the room.
+			db.saveMsg({msg: data.msg, user: data.user , img: data.img},function(err){
+				if(err) throw err
+			});
 			socket.broadcast.to(socket.room).emit('receive', {msg: data.msg, user: data.user, img: data.img});
 			
 		});

@@ -15,8 +15,9 @@ var signSchema = mongoose.Schema({
 });
 
 var chatSchema = mongoose.Schema({
-	nick: String,
-	msg: String,
+	msg: String, 
+	user: String, 
+	img: String,
 	created: {type: Date, default: Date.now}
 });
 
@@ -27,7 +28,6 @@ var SignUp = mongoose.model('User', signSchema);
 exports.login = function(data, cb){
 	var query = SignUp.findOne(data);
 	query.exec(function(err, docs){
-		console.log(docs);
 		cb(err, docs);
 	});
 }
@@ -47,7 +47,7 @@ exports.getOldMsgs = function(limit, cb){
 }
 
 exports.saveMsg = function(data, cb){
-	var newMsg = new Chat({msg: data.msg, nick: data.nick});
+	var newMsg = new Chat({msg: data.msg, user: data.user, img: data.img});
 	newMsg.save(function(err){
 		cb(err);
 	});
